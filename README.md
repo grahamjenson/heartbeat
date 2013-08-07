@@ -44,7 +44,7 @@ FREQUENCY= Frequency to heartbeat in milliseconds, e.g. 60000 is a minute
 
 e.g.
 ```
-export M1_SERVER=http://many1.herokuapp.com/servers/1
+export M1_SERVER=http://many1.herokuapp.com/servers/1/report.json
 export M1_USER=bob
 export M1_PASS=blabla
 export FREQUENCY=60000
@@ -73,19 +73,22 @@ with correct variables then put in /etc/init/heartbeat.conf, e.g.
 
 
 ```
-sudo cat config/heartbeat.conf  |
-  sed 's/VAR_M1_SERVER/http:\/\/many1.herokuapp.com\/servers\/1/g' |
+cat config/heartbeat.conf  |
+  sed 's/VAR_M1_SERVER/http:\/\/many1.herokuapp.com\/servers\/1\/report.json/g' |
   sed 's/VAR_M1_USER/user/g' |
   sed 's/VAR_M1_PASS/pass/g' |
-  sed 's/VAR_FREQUENCY/60000/g' |
+  sed 's/VAR_FREQUENCY/120000/g' |
   sed 's/USER_TO_RUN_AS/user/g' | 
-  sed 's/LOCATION_OF_HEARTBEAT/\/home\/deploy\/apps\/hearetbeat/g' > /etc/init/heartbeat.conf
+  sed 's/LOCATION_OF_HEARTBEAT/\/home\/user\/apps\/heartbeat/g' | sudo tee /etc/init/heartbeat.conf
 ```
 
 Test with:
 
 ```
-start hearbeat
+sudo start heartbeat
+sudo tail -f /var/log/heartbeat.sys.log
+#wait see what happens
+sudo stop heartbeat
 ```
 
 Monit setup

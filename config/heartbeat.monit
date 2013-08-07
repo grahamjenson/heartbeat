@@ -1,4 +1,3 @@
-check process delayed_job
-  with pidfile /var/run/heartbeat.pid
+check process nodejs with pidfile /var/run/heartbeat.pid
   start program = "/sbin/start heartbeat"
   stop program  = "/sbin/stop heartbeat"
