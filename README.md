@@ -94,8 +94,8 @@ sudo stop heartbeat
 Monit setup
 
 ```
-sudo cp config/hearbeat.monit /etc/monit/conf.d/
-sudo monit restart
+sudo cp config/heartbeat.monit /etc/monit/conf.d/
+sudo monit reload
 ```
 
 
