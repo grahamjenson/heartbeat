@@ -1,7 +1,5 @@
 (function() {
-  var app, async, create_heartbeat_attachment, create_notice_attachment, create_system_resources_attachment, express, moment, os, request, send_report, _;
-
-  express = require("express");
+  var FREQUENCY, PASSWORD, SERVER, USER, async, create_heartbeat_attachment, create_notice_attachment, create_system_resources_attachment, moment, os, request, send_report, _;
 
   request = require("request");
 
@@ -13,9 +11,15 @@
 
   async = require('async');
 
-  app = express();
+  SERVER = process.env.M1_SERVER || '127.0.0.1:3000';
 
-  app.use(express.logger());
+  USER = process.env.M1_USER || "";
+
+  PASSWORD = process.env.M1_PASS || "";
+
+  FREQUENCY = process.env.FREQUENCY || 60000;
+
+  console.log("" + USER + "@" + SERVER + " FREQ " + FREQUENCY);
 
   create_heartbeat_attachment = function() {
     return {
@@ -80,10 +84,10 @@
     };
     console.log("sending report: " + report);
     options = {
-      url: process.env.M1_SERVER,
+      url: SERVER,
       auth: {
-        user: process.env.M1_USER,
-        pass: process.env.M1_PASS
+        user: USER,
+        pass: PASSWORD
       },
       method: 'POST',
       json: {
@@ -108,6 +112,6 @@
     ], function(error, attachments) {
       return send_report(attachments);
     });
-  }, process.env.FREQUENCY || 20000);
+  }, FREQUENCY);
 
 }).call(this);

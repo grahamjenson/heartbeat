@@ -6,7 +6,8 @@
     "request": "2.25.x",
     "underscore": "1.5.x",
     "moment": "2.1.x",
-    "async": "0.2.x"
+    "async": "0.2.x",
+    "broadway": "0.2.x"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

@@ -5,20 +5,30 @@
 # dist   <-- f(src), all calculated files
 # vendor <-- all supplied files (calculated on different grunt task as the change less often)
 # 
-# src/assets <-- all public files (still usable on server)
 # 
 #
 ################################################
 
-express = require("express")
+############# IMPORTS ##########################
 request = require("request")
 _ = require('underscore')
 moment = require("moment")
 os = require('os')
 async = require('async')
 
-app = express()
-app.use(express.logger())
+############# END OF IMPORTS ##########################
+
+
+######### CONFIG ####################
+
+SERVER = process.env.M1_SERVER || '127.0.0.1:3000'
+USER = process.env.M1_USER || ""
+PASSWORD = process.env.M1_PASS || ""
+FREQUENCY = process.env.FREQUENCY || 60000
+
+console.log("#{USER}@#{SERVER} FREQ #{FREQUENCY}")
+######### END OF CONFIG ############
+
 
 
 ######### CREATE ATTACHMENT FUNCTIONS ########
@@ -69,8 +79,8 @@ send_report = (attachments, date = moment().format() ) ->
   console.log("sending report: #{report}")
   options = 
     {
-      url: process.env.M1_SERVER
-      auth: { user: process.env.M1_USER, pass: process.env.M1_PASS }
+      url: SERVER
+      auth: { user: USER, pass: PASSWORD }
       method: 'POST'
       json: report: report
     }
@@ -108,7 +118,7 @@ setInterval(
       send_report(attachments)
     )
 
-  , process.env.FREQUENCY || 20000
+  , FREQUENCY
 )
 
 
