@@ -1,5 +1,22 @@
-This is a spike into using node.js, grunt.js as a development platform for creating visualisations.
+#Heartbeat
+Heartbeat is an daemon that monitors the health of a server and sends data in reports, which can have many attachemtns.
+It has been primarily developed to be intergrated with the Many1 application.
 
+Currently this application has the ability to send
+1. Alive updates
+2. System Resource Use (memory & cpu)
+
+Later it is planned to have 
+1. Database resources (time to exwecute per query)
+2. Rails app resources (time to respond, time to render...)
+3. Error (Airbrake-esq error reporting) 
+
+##Future Development
+Inversion of Control, where plugins that provide attachments register their services.
+This way a heartbeat daemon can be set up with externally customizable plugins, e.g. attach a postgres monitor without having to cheage heartbeat code.
+
+
+#Documentation
 ##Developing Heartbeat
 
 ```brew install node```
