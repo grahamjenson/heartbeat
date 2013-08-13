@@ -61,7 +61,7 @@ FREQUENCY= Frequency to heartbeat in milliseconds, e.g. 60000 is a minute
 
 e.g.
 ```
-export M1_SERVER=http://many1.herokuapp.com/servers/1/report.json
+export M1_SERVER=http://many1.herokuapp.com/servers/1/reports.json
 export M1_USER=bob
 export M1_PASS=blabla
 export FREQUENCY=60000
@@ -91,7 +91,7 @@ with correct variables then put in /etc/init/heartbeat.conf, e.g.
 
 ```
 cat config/heartbeat.conf  |
-  sed 's/VAR_M1_SERVER/http:\/\/many1.herokuapp.com\/servers\/1\/report.json/g' |
+  sed 's/VAR_M1_SERVER/http:\/\/many1.herokuapp.com\/servers\/1\/reports.json/g' |
   sed 's/VAR_M1_USER/user/g' |
   sed 's/VAR_M1_PASS/pass/g' |
   sed 's/VAR_FREQUENCY/120000/g' |
