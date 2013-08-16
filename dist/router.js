@@ -1,5 +1,5 @@
 (function() {
-  var FREQUENCY, PASSWORD, SERVER, USER, async, create_heartbeat_attachment, create_notice_attachment, create_system_resources_attachment, moment, os, request, send_report, _;
+  var M1_PASSWORD, M1_SERVER, M1_USER, PUSH_FREQUENCY, SERVER_NAME, SERVER_PASSWORD, SERVER_PORT, SERVER_URL, SERVER_USER, async, create_heartbeat_attachment, create_notice_attachment, create_report, create_system_resources_attachment, express, generate_attachments, moment, os, pull_report, push_report, request, _;
 
   request = require("request");
 
@@ -11,23 +11,36 @@
 
   async = require('async');
 
-  SERVER = process.env.M1_SERVER || '127.0.0.1:3000';
+  express = require('express');
 
-  USER = process.env.M1_USER || "";
+  M1_SERVER = process.env.M1_SERVER || '127.0.0.1:3000';
 
-  PASSWORD = process.env.M1_PASS || "";
+  M1_USER = process.env.M1_USER || "";
 
-  FREQUENCY = process.env.FREQUENCY || 60000;
+  M1_PASSWORD = process.env.M1_PASS || "";
 
-  console.log("" + USER + "@" + SERVER + " FREQ " + FREQUENCY);
+  PUSH_FREQUENCY = process.env.PUSH_FREQUENCY || 60000;
+
+  SERVER_NAME = process.env.SERVER_NAME || 'nullserver';
+
+  SERVER_URL = process.env.SERVER_URL || 'http://localhost';
+
+  SERVER_PORT = process.env.SERVER_PORT || process.env.PORT || 5000;
+
+  SERVER_PASSWORD = process.env.SERVER_PASSWORD;
+
+  SERVER_USER = process.env.SERVER_USER;
+
+  console.log("PUSH " + M1_USER + "@" + M1_SERVER + " FOR " + SERVER_NAME + " FREQ " + PUSH_FREQUENCY);
+
+  console.log("PULL " + SERVER_USER + "@" + SERVER_URL + ":" + SERVER_PORT + " CALLED " + SERVER_NAME);
 
   create_heartbeat_attachment = function() {
     return {
       type: 'Heartbeat',
       level: 1,
-      value: {
-        alive_at: moment().format()
-      }
+      alive_at: moment().format(),
+      next_beat: moment().add('milliseconds', PUSH_FREQUENCY).format()
     };
   };
 
@@ -36,9 +49,7 @@
     return {
       type: 'Notice',
       level: 0,
-      value: {
-        message: message
-      }
+      message: message
     };
   };
 
@@ -48,26 +59,33 @@
     return {
       type: 'SystemResource',
       level: 1,
-      value: {
-        memory: {
-          freemem: os.freemem(),
-          totalmem: os.totalmem()
-        },
-        cpu: {
-          one_minute: cpuload[0],
-          five_minutes: cpuload[1],
-          fifteen_minutes: cpuload[2]
-        }
+      memory: {
+        freemem: os.freemem(),
+        totalmem: os.totalmem()
+      },
+      cpu: {
+        one_minute: cpuload[0],
+        five_minutes: cpuload[1],
+        fifteen_minutes: cpuload[2]
       }
     };
   };
 
-  send_report = function(attachments, date) {
-    var attachment, options, report, _i, _len;
+  generate_attachments = function(cb) {
+    return async.parallel([
+      function(callback) {
+        return callback(null, create_heartbeat_attachment());
+      }, function(callback) {
+        return callback(null, create_system_resources_attachment());
+      }
+    ], cb);
+  };
+
+  create_report = function(attachments, date) {
+    var attachment, report, _i, _len;
     if (date == null) {
       date = moment().format();
     }
-    console.log(attachments);
     if (!_.isArray(attachments)) {
       attachments = [attachments];
     }
@@ -82,12 +100,17 @@
       sent_at: date,
       attachments: attachments
     };
-    console.log("sending report: " + report);
+    return report;
+  };
+
+  push_report = function(report) {
+    var options;
+    console.log("pushing report:", report);
     options = {
-      url: SERVER,
+      url: "" + M1_SERVER + "/servers/" + SERVER_NAME + "/reports.json",
       auth: {
-        user: USER,
-        pass: PASSWORD
+        user: M1_USER,
+        pass: M1_PASSWORD
       },
       method: 'POST',
       json: {
@@ -99,19 +122,20 @@
     });
   };
 
-  send_report(create_notice_attachment('Starting the Heartbeat'));
+  pull_report = express();
 
-  setInterval(function() {
-    console.log('boom boom');
-    return async.parallel([
-      function(callback) {
-        return callback(null, create_heartbeat_attachment());
-      }, function(callback) {
-        return callback(null, create_system_resources_attachment());
-      }
-    ], function(error, attachments) {
-      return send_report(attachments);
+  pull_report.use(express.basicAuth(SERVER_USER, SERVER_PASSWORD));
+
+  pull_report.get('/', function(req, res) {
+    return generate_attachments(function(error, attachments) {
+      return res.json({
+        report: create_report(attachments)
+      });
     });
-  }, FREQUENCY);
+  });
+
+  pull_report.listen(SERVER_PORT);
+
+  push_report(create_report(create_notice_attachment('Starting the Heartbeat')));
 
 }).call(this);
