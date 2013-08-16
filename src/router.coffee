@@ -137,13 +137,13 @@ push_report(create_report(create_notice_attachment('Starting the Heartbeat')))
 
 #Push loop
 
-#setInterval(
-#  ->
-#    console.log('boom boom')
-#    generate_attachments((error, attachments) ->
-#      push_report(create_report(attachments))
-#    )
-#  , PUSH_FREQUENCY
-#)
+setInterval(
+ ->
+   console.log('boom boom')
+   generate_attachments((error, attachments) ->
+     push_report(create_report(attachments))
+   )
+ , PUSH_FREQUENCY
+)
 
 

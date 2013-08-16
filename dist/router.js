@@ -140,4 +140,11 @@
 
   push_report(create_report(create_notice_attachment('Starting the Heartbeat')));
 
+  setInterval(function() {
+    console.log('boom boom');
+    return generate_attachments(function(error, attachments) {
+      return push_report(create_report(attachments));
+    });
+  }, PUSH_FREQUENCY);
+
 }).call(this);
