@@ -100,7 +100,13 @@
       sent_at: date,
       attachments: attachments
     };
-    return report;
+    return {
+      report: report,
+      server: {
+        name: SERVER_NAME,
+        url: "" + SERVER_URL + ":" + SERVER_PORT
+      }
+    };
   };
 
   push_report = function(report) {
@@ -113,9 +119,7 @@
         pass: M1_PASSWORD
       },
       method: 'POST',
-      json: {
-        report: report
-      }
+      json: report
     };
     return request(options, function(e, r, b) {
       return console.log([e, b]);
@@ -128,9 +132,7 @@
 
   pull_report.get('/', function(req, res) {
     return generate_attachments(function(error, attachments) {
-      return res.json({
-        report: create_report(attachments)
-      });
+      return res.json(create_report(attachments));
     });
   });
 

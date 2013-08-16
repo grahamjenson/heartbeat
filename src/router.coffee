@@ -94,7 +94,12 @@ create_report = (attachments, date = moment().format() ) ->
     sent_at: date
     attachments: attachments
   }
-  report
+  return {
+    report: report
+    server:
+      name: SERVER_NAME
+      url: "#{SERVER_URL}:#{SERVER_PORT}"
+  }
 
 push_report = (report) ->
   console.log "pushing report:", report
@@ -103,7 +108,7 @@ push_report = (report) ->
       url: "#{M1_SERVER}/servers/#{SERVER_NAME}/reports.json"
       auth: { user: M1_USER, pass: M1_PASSWORD }
       method: 'POST'
-      json: report: report
+      json: report
     }
   request(options, (e,r,b) -> console.log [e,b])
 
@@ -112,7 +117,7 @@ pull_report = express()
 pull_report.use(express.basicAuth(SERVER_USER, SERVER_PASSWORD))
 pull_report.get('/', (req, res) ->
   generate_attachments((error, attachments) ->
-      res.json(report: create_report(attachments))
+      res.json(create_report(attachments))
   )
 )
 
