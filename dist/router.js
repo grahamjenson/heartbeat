@@ -1,5 +1,5 @@
 (function() {
-  var M1_PASSWORD, M1_SERVER, M1_USER, PUSH_FREQUENCY, SERVER_NAME, SERVER_PASSWORD, SERVER_PORT, SERVER_URL, SERVER_USER, async, create_heartbeat_attachment, create_notice_attachment, create_report, create_system_resources_attachment, express, generate_attachments, moment, os, pull_report, push_report, request, _;
+  var M1_PASSWORD, M1_SERVER, M1_USER, SERVER_NAME, SERVER_PASSWORD, SERVER_PORT, SERVER_URL, SERVER_USER, async, create_heartbeat_attachment, create_notice_attachment, create_report, create_system_resources_attachment, express, generate_attachments, moment, os, pull_report, push_report, request, _;
 
   request = require("request");
 
@@ -19,8 +19,6 @@
 
   M1_PASSWORD = process.env.M1_PASS || "";
 
-  PUSH_FREQUENCY = process.env.PUSH_FREQUENCY || 60000;
-
   SERVER_NAME = process.env.SERVER_NAME || 'nullserver';
 
   SERVER_URL = process.env.SERVER_URL || 'http://localhost';
@@ -31,7 +29,7 @@
 
   SERVER_USER = process.env.SERVER_USER;
 
-  console.log("PUSH " + M1_USER + "@" + M1_SERVER + " FOR " + SERVER_NAME + " FREQ " + PUSH_FREQUENCY);
+  console.log("PUSH " + M1_USER + "@" + M1_SERVER + " FOR " + SERVER_NAME);
 
   console.log("PULL " + SERVER_USER + "@" + SERVER_URL + ":" + SERVER_PORT + " CALLED " + SERVER_NAME);
 
@@ -39,8 +37,7 @@
     return {
       type: 'Heartbeat',
       level: 1,
-      alive_at: moment().format(),
-      next_beat: moment().add('milliseconds', PUSH_FREQUENCY).format()
+      alive_at: moment().format()
     };
   };
 
@@ -139,12 +136,5 @@
   pull_report.listen(SERVER_PORT);
 
   push_report(create_report(create_notice_attachment('Starting the Heartbeat')));
-
-  setInterval(function() {
-    console.log('boom boom');
-    return generate_attachments(function(error, attachments) {
-      return push_report(create_report(attachments));
-    });
-  }, PUSH_FREQUENCY);
 
 }).call(this);

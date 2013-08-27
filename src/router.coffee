@@ -26,7 +26,6 @@ express = require('express')
 M1_SERVER = process.env.M1_SERVER || '127.0.0.1:3000'
 M1_USER = process.env.M1_USER || ""
 M1_PASSWORD = process.env.M1_PASS || ""
-PUSH_FREQUENCY = process.env.PUSH_FREQUENCY || 60000
 
 #PULL CONFIGS
 SERVER_NAME = process.env.SERVER_NAME || 'nullserver'
@@ -35,14 +34,14 @@ SERVER_PORT = process.env.SERVER_PORT || process.env.PORT || 5000
 SERVER_PASSWORD = process.env.SERVER_PASSWORD
 SERVER_USER = process.env.SERVER_USER
 
-console.log("PUSH #{M1_USER}@#{M1_SERVER} FOR #{SERVER_NAME} FREQ #{PUSH_FREQUENCY}")
+console.log("PUSH #{M1_USER}@#{M1_SERVER} FOR #{SERVER_NAME}")
 console.log("PULL #{SERVER_USER}@#{SERVER_URL}:#{SERVER_PORT} CALLED #{SERVER_NAME}")
 ######### END OF CONFIG ############
 
 
 ######### CREATE ATTACHMENT FUNCTIONS ########
 
-create_heartbeat_attachment = -> {type: 'Heartbeat', level: 1, alive_at: moment().format(), next_beat: moment().add('milliseconds', PUSH_FREQUENCY).format()}
+create_heartbeat_attachment = -> {type: 'Heartbeat', level: 1, alive_at: moment().format()}
 
 create_notice_attachment = (message) ->  
   console.log(message)
@@ -134,16 +133,4 @@ push_report(create_report(create_notice_attachment('Starting the Heartbeat')))
 #If a report is immediatly required, then there should be a callback given to all the middleware to be able to send one
 #for service in services
 #  service.emergency_report_callback((a) -> push_report(a,Date.now))
-
-#Push loop
-
-setInterval(
- ->
-   console.log('boom boom')
-   generate_attachments((error, attachments) ->
-     push_report(create_report(attachments))
-   )
- , PUSH_FREQUENCY
-)
-
 
